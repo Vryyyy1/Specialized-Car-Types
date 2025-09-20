@@ -1,0 +1,171 @@
+class Car {
+    private String brand;
+    private double fuelCapacity;
+    private double currentFuel;
+    private double fuelEfficiency;
+
+    public Car(String brand, double fuelCapacity, double fuelEfficiency) {
+        this.brand = brand;
+        this.fuelCapacity = fuelCapacity;
+        this.fuelEfficiency = fuelEfficiency;
+        this.currentFuel = 0;
+    }
+
+    public void refuel(double liters) {
+        if (currentFuel + liters <= fuelCapacity) {
+            currentFuel += liters;
+            System.out.println(brand + " refueled with " + liters + " liters. Current fuel: " + currentFuel);
+        } else {
+            System.out.println("Cannot overfill fuel tank!");
+        }
+    }
+
+    public void drive(double distance) {
+        double fuelNeeded = distance / fuelEfficiency;
+        if (fuelNeeded <= currentFuel) {
+            currentFuel -= fuelNeeded;
+            System.out.println(brand + " drove " + distance + " km. Remaining fuel: " + currentFuel);
+        } else {
+            System.out.println("Not enough fuel to drive " + distance + " km.");
+        }
+    }
+
+    public double getCurrentFuel() {
+        return currentFuel;
+    }
+
+    public boolean canDrive(double distance) {
+        return (distance / fuelEfficiency) <= currentFuel;
+    }
+
+    public double estimateRange() {
+        return currentFuel * fuelEfficiency;
+    }
+
+    public String getBrand() {
+        return brand;
+    }
+}
+
+// ElectricCar subclass
+class ElectricCar extends Car {
+    private double batteryLevel;
+    private double batteryCapacity;
+    private double energyConsumption;
+
+    public ElectricCar(String brand, double batteryCapacity, double efficiencyPerKWh) {
+        super(brand, 0, 0); // fuel is not used
+        this.batteryCapacity = batteryCapacity;
+        this.energyConsumption = efficiencyPerKWh;
+        this.batteryLevel = 0;
+    }
+
+    public void recharge(double kWh) {
+        if (batteryLevel + kWh <= batteryCapacity) {
+            batteryLevel += kWh;
+            System.out.println(getBrand() + " recharged with " + kWh + " kWh. Current battery: " + batteryLevel);
+        } else {
+            System.out.println("Battery cannot exceed capacity!");
+        }
+    }
+
+    @Override
+    public void refuel(double liters) {
+        System.out.println(getBrand() + " uses electricity, not fuel!");
+    }
+
+    @Override
+    public void drive(double distance) {
+        double energyNeeded = distance / energyConsumption;
+        if (energyNeeded <= batteryLevel) {
+            batteryLevel -= energyNeeded;
+            System.out.println(getBrand() + " drove " + distance + " km. Remaining battery: " + batteryLevel);
+        } else {
+            System.out.println("Not enough battery to drive " + distance + " km.");
+        }
+    }
+
+    @Override
+    public double estimateRange() {
+        return batteryLevel * energyConsumption;
+    }
+
+    public double getBatteryLevel() {
+        return batteryLevel;
+    }
+}
+
+// HybridCar subclass
+class HybridCar extends Car {
+    private double batteryLevel;
+    private double batteryCapacity;
+    private double energyConsumption;
+
+    public HybridCar(String brand, double fuelCapacity, double fuelEfficiency, double batteryCapacity, double efficiencyPerKWh) {
+        super(brand, fuelCapacity, fuelEfficiency);
+        this.batteryCapacity = batteryCapacity;
+        this.energyConsumption = efficiencyPerKWh;
+        this.batteryLevel = 0;
+    }
+
+    public void recharge(double kWh) {
+        if (batteryLevel + kWh <= batteryCapacity) {
+            batteryLevel += kWh;
+            System.out.println(getBrand() + " recharged with " + kWh + " kWh. Current battery: " + batteryLevel);
+        } else {
+            System.out.println("Battery cannot exceed capacity!");
+        }
+    }
+
+    @Override
+    public void drive(double distance) {
+        double fuelRange = super.estimateRange();
+        if (distance <= fuelRange) {
+            super.drive(distance); // use fuel
+        } else {
+            double fuelPart = fuelRange;
+            super.drive(fuelPart);
+            double remainingDistance = distance - fuelPart;
+            double energyNeeded = remainingDistance / energyConsumption;
+
+            if (energyNeeded <= batteryLevel) {
+                batteryLevel -= energyNeeded;
+                System.out.println(getBrand() + " continued on battery for " + remainingDistance + " km. Remaining battery: " + batteryLevel);
+            } else {
+                System.out.println("Not enough fuel or battery to complete " + distance + " km.");
+            }
+        }
+    }
+
+    @Override
+    public double estimateRange() {
+        return super.estimateRange() + (batteryLevel * energyConsumption);
+    }
+
+    public double getBatteryLevel() {
+        return batteryLevel;
+    }
+}
+
+// Main Program
+public class Main {
+    public static void main(String[] args) {
+        Car car = new Car("Toyota", 50, 15);
+        car.refuel(30);
+        car.drive(100);
+        System.out.println("Range: " + car.estimateRange() + " km\n");
+
+        ElectricCar tesla = new ElectricCar("Tesla", 100, 6);
+        tesla.recharge(50);
+        tesla.drive(200);
+        System.out.println("Range: " + tesla.estimateRange() + " km\n");
+
+        HybridCar prius = new HybridCar("Prius", 40, 20, 50, 5);
+        prius.refuel(20);
+        prius.recharge(30);
+        prius.drive(500);
+        System.out.println("Range: " + prius.estimateRange() + " km\n");
+    }
+}
+
+
